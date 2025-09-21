@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@morpho-org/blue-sdk": "^4.9.1",
     "@morpho-org/blue-sdk-ethers": "^3.0.0",
+    "@morpho-org/blue-sdk-viem": "^3.1.2",
     "@privy-io/react-auth": "^3.0.1",
     "@privy-io/wagmi": "^2.0.0",
     "@tanstack/react-query": "^5.89.0",
@@ -18,7 +20,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
-    "viem": "2.x",
+    "viem": "~2.37.7",
     "wagmi": "^2.17.1"
   },
   "devDependencies": {

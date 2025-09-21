@@ -2,64 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { morphoAPI, type MorphoMarketData, type UserPositionData } from '@/lib/morpho/api'
+import { useNetwork } from '@/contexts/NetworkContext'
+import { useMorphoMarket, useMorphoPosition, useMorphoBalances } from '@/hooks/useMorphoData'
+import MorphoMarketSetup from './MorphoMarketSetup'
 
 export function MorphoMarketInfo() {
   const { address, isConnected } = useAccount()
+  const { isTestnet } = useNetwork()
   const [mounted, setMounted] = useState(false)
-  const [marketData, setMarketData] = useState<MorphoMarketData | null>(null)
-  const [userPosition, setUserPosition] = useState<UserPositionData | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  
+  // Use real hooks for data fetching
+  const { data: marketData, isLoading: marketLoading, error: marketError } = useMorphoMarket()
+  const { data: userPosition, isLoading: positionLoading } = useMorphoPosition()
+  const { data: balances } = useMorphoBalances()
   
   useEffect(() => {
     setMounted(true)
   }, [])
-  
-  useEffect(() => {
-    if (!mounted) return
-    
-    let isMounted = true
-    
-    const fetchData = async () => {
-      setIsLoading(true)
-      setError(null)
-      
-      try {
-        // Fetch market data
-        const market = await morphoAPI.getMarketData()
-        if (isMounted) {
-          setMarketData(market)
-        }
-        
-        // Fetch user position if connected
-        if (isConnected && address) {
-          const position = await morphoAPI.getUserPosition(address)
-          if (isMounted) {
-            setUserPosition(position)
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch Morpho data')
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-    
-    fetchData()
-    
-    // Refresh data every 30 seconds
-    const interval = setInterval(fetchData, 30000)
-    
-    return () => {
-      isMounted = false
-      clearInterval(interval)
-    }
-  }, [mounted, isConnected, address])
   
   if (!mounted) {
     return (
@@ -75,30 +34,61 @@ export function MorphoMarketInfo() {
     )
   }
   
-  if (error) {
+  // Show market setup component if no market is configured
+  if (!marketData && !marketLoading && !marketError) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Morpho Blue Market - Setup Required</h3>
+        <MorphoMarketSetup />
+      </div>
+    )
+  }
+  
+  if (marketError) {
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Morpho Blue Market</h3>
         <div className="bg-red-50 border border-red-200 rounded-md p-3">
-          <p className="text-sm text-red-700">Error loading market data: {error}</p>
+          <p className="text-sm text-red-700">Error loading market data</p>
         </div>
       </div>
     )
   }
   
+  const isLoading = marketLoading || positionLoading
+  
+  const getHealthFactorColor = (healthFactor: number): string => {
+    if (healthFactor === 0) return 'text-gray-500'
+    if (healthFactor > 1.5) return 'text-green-600'
+    if (healthFactor > 1.2) return 'text-yellow-600'
+    return 'text-red-600'
+  }
+  
+  const formatHealthFactor = (healthFactor: number): string => {
+    if (healthFactor === 0) return 'N/A'
+    if (healthFactor > 100) return '∞'
+    if (healthFactor < 1) return `⚠️ ${healthFactor.toFixed(2)}`
+    return healthFactor.toFixed(2)
+  }
+  
   const healthFactorColor = userPosition 
-    ? morphoAPI.constructor.getHealthFactorColor(userPosition.healthFactor)
+    ? getHealthFactorColor(userPosition.healthFactor)
     : 'text-gray-500'
   
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
       <div className="p-6 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">
-          Morpho Blue Market - wstETH/USDC
+          Morpho Blue Market - wstETH/WETH {isTestnet && '(Sepolia)'}
         </h3>
         <p className="text-sm text-gray-600 mt-1">
-          Supply wstETH as collateral, borrow USDC against it
+          Supply wstETH as collateral, borrow WETH against it
         </p>
+        {isTestnet && (
+          <p className="text-xs text-yellow-600 mt-1">
+            ⚠️ Using Sepolia testnet - create market if not already deployed
+          </p>
+        )}
       </div>
       
       {/* Market Parameters */}
@@ -108,7 +98,7 @@ export function MorphoMarketInfo() {
           <div className="bg-gray-50 rounded-md p-3">
             <p className="text-xs font-medium text-gray-600">Max LTV</p>
             <p className="text-lg font-bold text-gray-900">
-              {marketData?.lltv || '94.5'}%
+              {marketData?.lltv || '86'}%
             </p>
           </div>
           <div className="bg-gray-50 rounded-md p-3">
@@ -124,17 +114,16 @@ export function MorphoMarketInfo() {
             </p>
           </div>
           <div className="bg-gray-50 rounded-md p-3">
-            <p className="text-xs font-medium text-gray-600">Oracle Price</p>
+            <p className="text-xs font-medium text-gray-600">wstETH/ETH</p>
             <p className="text-lg font-bold text-gray-900">
-              $4,500
+              {marketData?.oraclePrice?.toFixed(3) || '1.100'}
             </p>
           </div>
         </div>
         
         {marketData && (
           <div className="mt-4 text-xs text-gray-500">
-            <p>Market ID: {marketData.marketId.slice(0, 10)}...{marketData.marketId.slice(-8)}</p>
-            <p>IRM: {marketData.irm.slice(0, 10)}...{marketData.irm.slice(-8)}</p>
+            <p>Market ID: {marketData.marketId?.slice(0, 10)}...{marketData.marketId?.slice(-8)}</p>
           </div>
         )}
       </div>
@@ -143,6 +132,25 @@ export function MorphoMarketInfo() {
       {isConnected && (
         <div className="p-6">
           <h4 className="text-sm font-semibold text-gray-700 mb-3">Your Position</h4>
+          
+          {/* Wallet Balances */}
+          {balances && (
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-gray-50 rounded-md p-3">
+                <p className="text-xs font-medium text-gray-600">Wallet wstETH</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {balances.wstETH.toFixed(4)}
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-md p-3">
+                <p className="text-xs font-medium text-gray-600">Wallet WETH</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {balances.weth.toFixed(4)}
+                </p>
+              </div>
+            </div>
+          )}
+          
           {userPosition ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -153,9 +161,9 @@ export function MorphoMarketInfo() {
                   </p>
                 </div>
                 <div className="bg-purple-50 rounded-md p-3">
-                  <p className="text-xs font-medium text-purple-700">Borrowed (USDC)</p>
+                  <p className="text-xs font-medium text-purple-700">Borrowed (WETH)</p>
                   <p className="text-lg font-bold text-purple-900">
-                    ${userPosition.borrowedBalance.toFixed(2)}
+                    {userPosition.borrowedBalance.toFixed(4)} ETH
                   </p>
                 </div>
                 <div className="bg-gray-50 rounded-md p-3">
@@ -167,7 +175,7 @@ export function MorphoMarketInfo() {
                 <div className="bg-gray-50 rounded-md p-3">
                   <p className="text-xs font-medium text-gray-700">Max Borrowable</p>
                   <p className="text-lg font-bold text-gray-900">
-                    ${userPosition.maxBorrowable.toFixed(2)}
+                    {userPosition.maxBorrowable.toFixed(4)} ETH
                   </p>
                 </div>
               </div>
@@ -183,7 +191,7 @@ export function MorphoMarketInfo() {
                   <div>
                     <p className="text-sm font-semibold text-gray-700">Health Factor</p>
                     <p className={`text-2xl font-bold ${healthFactorColor}`}>
-                      {morphoAPI.constructor.formatHealthFactor(userPosition.healthFactor)}
+                      {formatHealthFactor(userPosition.healthFactor)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -207,9 +215,9 @@ export function MorphoMarketInfo() {
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                   <h5 className="text-sm font-semibold text-blue-900 mb-2">Available Actions:</h5>
                   <ul className="text-xs text-blue-800 space-y-1">
-                    <li>• Bridge ${userPosition.borrowedBalance.toFixed(2)} USDC to Hyperliquid</li>
-                    <li>• Add more collateral to improve Health Factor</li>
-                    <li>• Repay part of your loan to reduce risk</li>
+                    <li>• Bridge {userPosition.borrowedBalance.toFixed(4)} WETH via deBridge</li>
+                    <li>• Add more wstETH collateral to improve Health Factor</li>
+                    <li>• Repay part of your WETH loan to reduce risk</li>
                   </ul>
                 </div>
               )}

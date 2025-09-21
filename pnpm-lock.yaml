@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@morpho-org/blue-sdk':
+        specifier: ^4.9.1
+        version: 4.11.0(@morpho-org/morpho-ts@2.4.2)
       '@morpho-org/blue-sdk-ethers':
         specifier: ^3.0.0
-        version: 3.0.0(@morpho-org/blue-sdk@3.0.9(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(ethers-types@3.18.1(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 3.0.0(@morpho-org/blue-sdk@4.11.0(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(ethers-types@3.18.1(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@morpho-org/blue-sdk-viem':
+        specifier: ^3.1.2
+        version: 3.1.2(@morpho-org/blue-sdk@4.11.0(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(viem@2.37.7(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@privy-io/react-auth':
         specifier: ^3.0.1
         version: 3.0.1(@types/react@19.1.13)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.2)(use-sync-external-store@1.4.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -36,7 +42,7 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       viem:
-        specifier: 2.x
+        specifier: ~2.37.7
         version: 2.37.7(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
       wagmi:
         specifier: ^2.17.1
@@ -560,10 +566,17 @@ packages:
       ethers: ^6.0.0
       ethers-types: ^3.18.1
 
-  '@morpho-org/blue-sdk@3.0.9':
-    resolution: {integrity: sha512-wmJexYTMNIaDrw1xt8fGl9BVQljI4EEd78WP3JNVGu2+oz4TIEt0q3+I2BMSbe07hw0tYYgFurR/w+LFAhSATw==}
+  '@morpho-org/blue-sdk-viem@3.1.2':
+    resolution: {integrity: sha512-coGveu8XYANxaP3B8PrlCE03ols5FzhGc51yl6u5scXWOvrP2K8gtoNQwV0BuPWx2veKMjs93Ry7vLPT/ycM2Q==}
     peerDependencies:
-      '@morpho-org/morpho-ts': ^2.3.0
+      '@morpho-org/blue-sdk': ^4.9.1
+      '@morpho-org/morpho-ts': ^2.4.1
+      viem: ^2.0.0
+
+  '@morpho-org/blue-sdk@4.11.0':
+    resolution: {integrity: sha512-8g4A7rX3VpaDsxijU7/+Hz8E+WjvJtbIMnb+V5kDsO2k+rah3FiY7bOQVzCOX+7jAPUTXXpSDr2co7vDz4Kf/g==}
+    peerDependencies:
+      '@morpho-org/morpho-ts': ^2.4.2
 
   '@morpho-org/morpho-ts@2.4.2':
     resolution: {integrity: sha512-g/krrYJ0W0HkV2oU8Ce/7dSxeARCim5hYxFNV231PdYH3beaxAK2pBjpFzNJgaUmvVzFuXGfkKz58eiwlU+BvQ==}
@@ -999,6 +1012,12 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+
+  '@types/lodash.isplainobject@4.0.9':
+    resolution: {integrity: sha512-QC8nKcap5hRrbtIaPRjUMlcXXnLeayqQZPSaWJDx3xeuN17+2PW5wkmEJ4+lZgNnQRlSPzxjTYKCfV1uTnPaEg==}
+
+  '@types/lodash.mergewith@4.6.9':
+    resolution: {integrity: sha512-fgkoCAOF47K7sxrQ7Mlud2TH023itugZs2bUg8h/KzT+BnZNrR2jAOmaokbLunHNnobXVWOezAeNn/lZqwxkcw==}
 
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
@@ -2470,8 +2489,14 @@ packages:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
 
+  lodash.isplainobject@4.0.6:
+    resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
+
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  lodash.mergewith@4.6.2:
+    resolution: {integrity: sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==}
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -4368,18 +4393,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@morpho-org/blue-sdk-ethers@3.0.0(@morpho-org/blue-sdk@3.0.9(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(ethers-types@3.18.1(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@morpho-org/blue-sdk-ethers@3.0.0(@morpho-org/blue-sdk@4.11.0(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(ethers-types@3.18.1(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
-      '@morpho-org/blue-sdk': 3.0.9(@morpho-org/morpho-ts@2.4.2)
+      '@morpho-org/blue-sdk': 4.11.0(@morpho-org/morpho-ts@2.4.2)
       '@morpho-org/morpho-ts': 2.4.2
       ethers: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       ethers-types: 3.18.1(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       rxjs: 7.8.2
 
-  '@morpho-org/blue-sdk@3.0.9(@morpho-org/morpho-ts@2.4.2)':
+  '@morpho-org/blue-sdk-viem@3.1.2(@morpho-org/blue-sdk@4.11.0(@morpho-org/morpho-ts@2.4.2))(@morpho-org/morpho-ts@2.4.2)(viem@2.37.7(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))':
+    dependencies:
+      '@morpho-org/blue-sdk': 4.11.0(@morpho-org/morpho-ts@2.4.2)
+      '@morpho-org/morpho-ts': 2.4.2
+      viem: 2.37.7(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+
+  '@morpho-org/blue-sdk@4.11.0(@morpho-org/morpho-ts@2.4.2)':
     dependencies:
       '@morpho-org/morpho-ts': 2.4.2
       '@noble/hashes': 1.8.0
+      '@types/lodash.isplainobject': 4.0.9
+      '@types/lodash.mergewith': 4.6.9
+      lodash.isplainobject: 4.0.6
+      lodash.mergewith: 4.6.2
 
   '@morpho-org/morpho-ts@2.4.2': {}
 
@@ -4961,7 +4996,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.1
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -5093,6 +5128,14 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
+
+  '@types/lodash.isplainobject@4.0.9':
+    dependencies:
+      '@types/lodash': 4.17.20
+
+  '@types/lodash.mergewith@4.6.9':
+    dependencies:
+      '@types/lodash': 4.17.20
 
   '@types/lodash@4.17.20': {}
 
@@ -6123,6 +6166,11 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
       zod: 3.25.76
+
+  abitype@1.1.1(typescript@5.9.2)(zod@3.22.4):
+    optionalDependencies:
+      typescript: 5.9.2
+      zod: 3.22.4
 
   abitype@1.1.1(typescript@5.9.2)(zod@3.25.76):
     optionalDependencies:
@@ -7418,7 +7466,11 @@ snapshots:
     dependencies:
       p-locate: 5.0.0
 
+  lodash.isplainobject@4.0.6: {}
+
   lodash.merge@4.6.2: {}
+
+  lodash.mergewith@4.6.2: {}
 
   lodash@4.17.21: {}
 
@@ -7620,9 +7672,9 @@ snapshots:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.1(typescript@5.9.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -7651,7 +7703,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
+      abitype: 1.1.1(typescript@5.9.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -7666,7 +7718,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@3.22.4)
+      abitype: 1.1.1(typescript@5.9.2)(zod@3.22.4)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -7681,7 +7733,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@3.25.76)
+      abitype: 1.1.1(typescript@5.9.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2

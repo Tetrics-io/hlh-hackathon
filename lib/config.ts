@@ -1,5 +1,5 @@
 import { createConfig, http } from 'wagmi'
-import { mainnet, arbitrum } from 'wagmi/chains'
+import { mainnet, arbitrum, sepolia } from 'wagmi/chains'
 import { defineChain } from 'viem'
 
 // HyperEVM Chain Configuration
@@ -45,10 +45,11 @@ export const HL_CORE_WRITER_ADDRESS = '0x333333333333333333333333333333333333333
 
 // Wagmi Configuration
 export const wagmiConfig = createConfig({
-  chains: [mainnet, arbitrum, hyperEVM],
+  chains: [mainnet, arbitrum, sepolia, hyperEVM],
   transports: {
     [mainnet.id]: http(),
     [arbitrum.id]: http(),
+    [sepolia.id]: http(process.env.NEXT_PUBLIC_ETH_TESTNET_RPC),
     [hyperEVM.id]: http(),
   },
 })
@@ -64,6 +65,11 @@ export const supportedChains = [
     id: arbitrum.id, 
     name: arbitrum.name,
     icon: '🔷'
+  },
+  { 
+    id: sepolia.id, 
+    name: sepolia.name,
+    icon: '🧪'
   },
   { 
     id: hyperEVM.id, 

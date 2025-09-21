@@ -1,84 +1,109 @@
 import { WalletConnector } from '@/components/WalletConnector'
-import { ChainInfo } from '@/components/ChainInfo'
-import { CoreWriterInfo } from '@/components/CoreWriterInfo'
+import { NetworkIndicator } from '@/components/NetworkIndicator'
+import { MorphoLendingPanel } from '@/components/MorphoLendingPanel'
 import { BridgePanel } from '@/components/BridgePanel'
-import { TradingPanel } from '@/components/TradingPanel'
-import { MorphoMarketInfo } from '@/components/MorphoMarketInfo'
+import { TransactionGuards } from '@/components/TransactionGuards'
+import { AutomationProvider } from '@/contexts/AutomationContext'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Morpho → Hyperliquid Bridge & Trade
-          </h1>
-          <p className="text-gray-700 text-lg">
-            Complete DeFi Flow: Borrow USDC on Morpho → Bridge to Hyperliquid → Trade on HyperEVM
-          </p>
+    <AutomationProvider>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+        <NetworkIndicator />
+        <TransactionGuards />
+        
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Morpho Blue Lending Protocol
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Supply wstETH collateral and borrow WETH on Ethereum mainnet
+            </p>
+          </div>
         </header>
 
-        <div className="max-w-4xl mx-auto space-y-6">
+        {/* Wallet Connection */}
+        <div className="container mx-auto px-4 py-4">
           <WalletConnector />
-          <ChainInfo />
-          
-          {/* Flow Steps */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Complete Flow Steps:</h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-white/10 backdrop-blur rounded-md p-4">
-                <div className="text-2xl mb-2">1️⃣</div>
-                <h3 className="font-semibold">Borrow USDC</h3>
-                <p className="text-sm opacity-90">Supply wstETH on Morpho, borrow USDC</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur rounded-md p-4">
-                <div className="text-2xl mb-2">2️⃣</div>
-                <h3 className="font-semibold">Bridge to HL</h3>
-                <p className="text-sm opacity-90">Bridge USDC via deBridge to Hyperliquid</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur rounded-md p-4">
-                <div className="text-2xl mb-2">3️⃣</div>
-                <h3 className="font-semibold">Trade HYPE</h3>
-                <p className="text-sm opacity-90">Trade HYPE-PERP with bridged USDC</p>
+        </div>
+
+        {/* Main Two-Column Layout */}
+        <main className="container mx-auto px-4 py-6">
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Column 1: Borrow */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <span className="text-2xl">1️⃣</span>
+                    Borrow on Morpho
+                  </h2>
+                  <p className="text-sm opacity-90 mt-1">
+                    Supply wstETH, borrow WETH
+                  </p>
+                </div>
+                <div className="p-4">
+                  <MorphoLendingPanel />
+                </div>
               </div>
             </div>
+
+            {/* Column 2: Bridge */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <span className="text-2xl">2️⃣</span>
+                    Bridge Assets
+                  </h2>
+                  <p className="text-sm opacity-90 mt-1">
+                    Move funds to Hyperliquid
+                  </p>
+                </div>
+                <div className="p-4">
+                  <BridgePanel />
+                </div>
+              </div>
+            </div>
+
           </div>
-          
-          <CoreWriterInfo />
-          
-          {/* Morpho Market Info */}
-          <MorphoMarketInfo />
-          
-          {/* Bridge Section */}
-          <BridgePanel />
-          
-          {/* Trading Section */}
-          <TradingPanel />
-          
-          <div className="grid md:grid-cols-3 gap-4 mt-8">
-            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
-              <div className="text-2xl mb-2">🟦</div>
-              <h3 className="font-semibold text-gray-900">Ethereum</h3>
-              <p className="text-sm text-gray-600">Mainnet</p>
-            </div>
-            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
-              <div className="text-2xl mb-2">🔷</div>
-              <h3 className="font-semibold text-gray-900">Arbitrum</h3>
-              <p className="text-sm text-gray-600">Layer 2</p>
-            </div>
-            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
-              <div className="text-2xl mb-2">⚡</div>
-              <h3 className="font-semibold text-gray-900">HyperEVM</h3>
-              <p className="text-sm text-gray-600">High Performance</p>
+
+          {/* Flow Indicator (Desktop Only) */}
+          <div className="hidden lg:flex justify-center items-center mt-8 px-12">
+            <div className="flex-1 max-w-md h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded"></div>
+            <div className="px-4">
+              <div className="text-purple-600 text-2xl">→</div>
             </div>
           </div>
 
-          <footer className="text-center text-gray-600 text-sm mt-12 pb-4">
-            <p className="font-medium">Built with Next.js, Wagmi, Viem, and Privy</p>
-            <p className="mt-1">Supports WalletConnect, MetaMask, Rabby, and more</p>
-          </footer>
-        </div>
+          {/* Helper Section */}
+          <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">How It Works</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Step 1: Supply Collateral</h4>
+                <p>Deposit wstETH as collateral on Morpho Blue. The protocol supports up to 86% loan-to-value ratio for optimal capital efficiency.</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Step 2: Borrow & Bridge</h4>
+                <p>Borrow WETH against your collateral and optionally bridge it to other chains using deBridge for cross-chain opportunities.</p>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="mt-12 border-t border-gray-200 bg-white">
+          <div className="container mx-auto px-4 py-6">
+            <div className="text-center text-sm text-gray-600">
+              <p className="font-medium">Morpho Blue Lending Protocol on Ethereum Mainnet</p>
+              <p className="mt-1">Powered by deBridge, Privy, and Viem</p>
+            </div>
+          </div>
+        </footer>
       </div>
-    </div>
+    </AutomationProvider>
   )
 }

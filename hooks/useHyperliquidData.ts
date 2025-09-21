@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAccount } from 'wagmi'
-import { hyperliquidAPI } from '@/lib/hyperliquid/api'
+import { createHyperliquidAPI } from '@/lib/hyperliquid/api'
+import { useNetwork } from '@/contexts/NetworkContext'
 
 interface HyperliquidData {
   balance: number
@@ -14,6 +15,14 @@ interface HyperliquidData {
 
 export function useHyperliquidData(pollingInterval = 5000) {
   const { address, isConnected } = useAccount()
+  const { config, isTestnet } = useNetwork()
+  
+  // Create API instance based on current network
+  const api = useMemo(
+    () => createHyperliquidAPI(config.hyperliquidApiUrl, isTestnet),
+    [config.hyperliquidApiUrl, isTestnet]
+  )
+  
   const [data, setData] = useState<HyperliquidData>({
     balance: 0,
     hypeMarkPrice: 0,
@@ -37,11 +46,21 @@ export function useHyperliquidData(pollingInterval = 5000) {
       setData(prev => ({ ...prev, isLoading: true, error: null }))
       
       try {
-        // Fetch balance and price in parallel
-        const [balance, hypeMarkPrice] = await Promise.all([
-          hyperliquidAPI.getUserBalance(address),
-          hyperliquidAPI.getHypeMarkPrice()
+        // Fetch balance and price in parallel with error handling for each
+        const [balanceResult, priceResult] = await Promise.allSettled([
+          api.getUserBalance(address),
+          api.getHypeMarkPrice()
         ])
+        
+        const balance = balanceResult.status === 'fulfilled' ? balanceResult.value : 0
+        const hypeMarkPrice = priceResult.status === 'fulfilled' ? priceResult.value : 0
+        
+        if (balanceResult.status === 'rejected') {
+          console.warn('Failed to fetch balance:', balanceResult.reason)
+        }
+        if (priceResult.status === 'rejected') {
+          console.warn('Failed to fetch price:', priceResult.reason)
+        }
         
         if (isMounted) {
           setData({
@@ -53,6 +72,7 @@ export function useHyperliquidData(pollingInterval = 5000) {
           })
         }
       } catch (error) {
+        console.error('useHyperliquidData error:', error)
         if (isMounted) {
           setData(prev => ({
             ...prev,
@@ -74,13 +94,21 @@ export function useHyperliquidData(pollingInterval = 5000) {
       isMounted = false
       clearInterval(intervalId)
     }
-  }, [address, isConnected, pollingInterval])
+  }, [address, isConnected, pollingInterval, api])
   
   return data
 }
 
 export function useHyperliquidBalance(pollingInterval = 5000) {
   const { address, isConnected } = useAccount()
+  const { config, isTestnet } = useNetwork()
+  
+  // Create API instance based on current network
+  const api = useMemo(
+    () => createHyperliquidAPI(config.hyperliquidApiUrl, isTestnet),
+    [config.hyperliquidApiUrl, isTestnet]
+  )
+  
   const [balance, setBalance] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -101,7 +129,7 @@ export function useHyperliquidBalance(pollingInterval = 5000) {
       setError(null)
       
       try {
-        const userBalance = await hyperliquidAPI.getUserBalance(address)
+        const userBalance = await api.getUserBalance(address)
         if (isMounted) {
           setBalance(userBalance)
         }
@@ -127,12 +155,20 @@ export function useHyperliquidBalance(pollingInterval = 5000) {
       isMounted = false
       clearInterval(intervalId)
     }
-  }, [address, isConnected, pollingInterval])
+  }, [address, isConnected, pollingInterval, api])
   
   return { balance, isLoading, error }
 }
 
 export function useHypeMarkPrice(pollingInterval = 5000) {
+  const { config, isTestnet } = useNetwork()
+  
+  // Create API instance based on current network
+  const api = useMemo(
+    () => createHyperliquidAPI(config.hyperliquidApiUrl, isTestnet),
+    [config.hyperliquidApiUrl, isTestnet]
+  )
+  
   const [price, setPrice] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -148,7 +184,7 @@ export function useHypeMarkPrice(pollingInterval = 5000) {
       setError(null)
       
       try {
-        const markPrice = await hyperliquidAPI.getHypeMarkPrice()
+        const markPrice = await api.getHypeMarkPrice()
         if (isMounted) {
           setPrice(markPrice)
         }
@@ -174,7 +210,7 @@ export function useHypeMarkPrice(pollingInterval = 5000) {
       isMounted = false
       clearInterval(intervalId)
     }
-  }, [pollingInterval])
+  }, [pollingInterval, api])
   
   return { price, isLoading, error }
 }
