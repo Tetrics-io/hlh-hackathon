@@ -1,6 +1,9 @@
 import { WalletConnector } from '@/components/WalletConnector'
 import { ChainInfo } from '@/components/ChainInfo'
 import { CoreWriterInfo } from '@/components/CoreWriterInfo'
+import { BridgePanel } from '@/components/BridgePanel'
+import { TradingPanel } from '@/components/TradingPanel'
+import { MorphoMarketInfo } from '@/components/MorphoMarketInfo'
 
 export default function Home() {
   return (
@@ -8,17 +11,49 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Web3 Multi-Chain App
+            Morpho → Hyperliquid Bridge & Trade
           </h1>
           <p className="text-gray-700 text-lg">
-            Connect your wallet to Ethereum, Arbitrum, and HyperEVM
+            Complete DeFi Flow: Borrow USDC on Morpho → Bridge to Hyperliquid → Trade on HyperEVM
           </p>
         </header>
 
         <div className="max-w-4xl mx-auto space-y-6">
           <WalletConnector />
           <ChainInfo />
+          
+          {/* Flow Steps */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-4">Complete Flow Steps:</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-white/10 backdrop-blur rounded-md p-4">
+                <div className="text-2xl mb-2">1️⃣</div>
+                <h3 className="font-semibold">Borrow USDC</h3>
+                <p className="text-sm opacity-90">Supply wstETH on Morpho, borrow USDC</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-md p-4">
+                <div className="text-2xl mb-2">2️⃣</div>
+                <h3 className="font-semibold">Bridge to HL</h3>
+                <p className="text-sm opacity-90">Bridge USDC via deBridge to Hyperliquid</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-md p-4">
+                <div className="text-2xl mb-2">3️⃣</div>
+                <h3 className="font-semibold">Trade HYPE</h3>
+                <p className="text-sm opacity-90">Trade HYPE-PERP with bridged USDC</p>
+              </div>
+            </div>
+          </div>
+          
           <CoreWriterInfo />
+          
+          {/* Morpho Market Info */}
+          <MorphoMarketInfo />
+          
+          {/* Bridge Section */}
+          <BridgePanel />
+          
+          {/* Trading Section */}
+          <TradingPanel />
           
           <div className="grid md:grid-cols-3 gap-4 mt-8">
             <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
