@@ -1,204 +1,220 @@
-# Morpho Blue Lending Interface
+# Tetrics Protocol - Cross-Chain DeFi on Hyperliquid
 
-A modern, user-friendly web application for interacting with Morpho Blue lending protocol on Ethereum mainnet. Built with Next.js and optimized for the wstETH/USDC market.
+## What We Built
 
-## Overview
+Tetrics Protocol is a cross-chain DeFi platform that bridges the gap between
+Ethereum's lending markets and Hyperliquid's trading ecosystem. We've created a
+seamless user experience where users can leverage their assets on Morpho Blue
+(Ethereum) and instantly bridge the borrowed funds to Hyperliquid for trading
+opportunities.
 
-This application provides a streamlined interface for lending and borrowing on Morpho Blue, one of the most efficient lending protocols in DeFi. Users can:
+## How It Works - Technical Integration
 
-- **Supply wstETH as collateral** - Deposit wrapped staked ETH to earn yield
-- **Borrow USDC** - Access liquidity against your collateral
-- **Manage positions** - Track your health factor and manage risk
-- **One-click operations** - Simplified UX for complex DeFi interactions
+### The User Journey
 
-## Key Features
+1. **Connect & Supply**: Users connect their wallet and supply wstETH as
+   collateral on Morpho Blue (Ethereum mainnet)
+2. **Borrow USDC**: Using up to 86% LTV, users borrow USDC against their
+   collateral
+3. **Bridge to Hyperliquid**: The borrowed USDC is bridged through deBridge
+   directly to Hyperliquid
+4. **Trade & Earn**: Users can now trade on Hyperliquid with their borrowed
+   capital
 
-### 🔒 Security First
-- Non-custodial - Users maintain full control of their funds
-- Battle-tested Morpho Blue protocol
-- Chainlink price oracles for accurate valuations
+### Technical Architecture
 
-### 💰 Efficient Lending
-- **86% Loan-to-Value (LTV)** - Maximize capital efficiency
-- **Dynamic interest rates** - Adaptive curve IRM adjusts to market conditions
-- **Real-time position tracking** - Monitor collateral, borrows, and health factor
-
-### 🎯 User Experience
-- **Simple interface** - Clean, intuitive design
-- **Wallet integration** - Seamless connection via Privy
-- **Transaction status** - Real-time feedback on all operations
-- **Mobile responsive** - Works on all devices
-
-## Technical Architecture
-
-### Smart Contracts
-- **Morpho Blue**: Core lending protocol (`0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb`)
-- **Market ID**: wstETH/USDC market with 86% LLTV
-- **Price Oracle**: Chainlink ETH/USD feed for accurate pricing
-
-### Frontend Stack
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Viem** - Ethereum interactions
-- **Privy** - Wallet connection and authentication
-- **TailwindCSS** - Responsive styling
-
-### Key Dependencies
-- `@morpho-org/blue-sdk-viem` - Official Morpho Blue SDK
-- `@privy-io/react-auth` - Wallet authentication
-- `viem` - Ethereum library
-- `react-hot-toast` - Notifications
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- pnpm (recommended) or npm
-- Ethereum wallet (MetaMask, Coinbase Wallet, etc.)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd web3-app
+```
+User Wallet → Morpho Blue (ETH) → deBridge Widget → Hyperliquid (998)
+     ↑              ↓                    ↓                ↓
+   wstETH      Borrow USDC         Bridge USDC      Trade/Earn
 ```
 
-2. Install dependencies:
+### Core Components
+
+#### 1. **Morpho Blue Integration** (`/hooks/useMorphoData.ts`, `/lib/morpho/`)
+
+- Direct integration with Morpho Blue protocol using their SDK
+- Real-time position tracking (health factor, available to borrow)
+- Bundled transactions for supply + borrow in one click
+- Automatic calculation of safe borrowing limits
+
+#### 2. **deBridge Widget Integration** (`/components/BridgePanel.tsx`, `/lib/debridge/`)
+
+- Embedded widget for in-app bridging experience
+- Custom theme matching Hyperliquid's dark UI
+- Real-time transaction status tracking
+- Event listeners for bridge lifecycle management
+
+#### 3. **Cross-Chain State Management** (`/contexts/AutomationContext.tsx`)
+
+- Unified state across Ethereum and Hyperliquid operations
+- Transaction guards to prevent dangerous operations
+- Automatic network switching when needed
+
+## deBridge Track - Specific Features We Built
+
+### 1. **Embedded Widget with Custom Theme**
+
+```typescript
+// /lib/debridge/config.ts
+export const widgetConfig = {
+   appId: 12203,
+   theme: "dark",
+   colors: {
+      primary: "#2EBD85", // Hyperliquid green
+      background: "#0B0E11", // Dark background
+      text: "#E8EAED", // Light text
+   },
+   chains: {
+      inputChains: { include: [1, 42161] }, // ETH, Arbitrum
+      outputChains: { include: [998] }, // Hyperliquid only
+   },
+};
+```
+
+### 2. **Real-Time Bridge Status Tracking**
+
+```typescript
+// /components/BridgePanel.tsx
+widget.on("order", (orderData) => {
+   setCurrentOrder(orderData);
+   setBridgeStatus("pending");
+   // Show live transaction progress
+});
+
+widget.on("bridge", (bridgeData) => {
+   if (bridgeData.status === "completed") {
+      setBridgeStatus("success");
+      // Trigger success flow
+   }
+});
+```
+
+### 3. **Seamless UX Flow Integration**
+
+- Pre-configured routes: Ethereum → Hyperliquid
+- Auto-populated amounts from Morpho borrowing
+- Visual status indicators matching our dark theme
+- Error handling with retry mechanisms
+
+### 4. **Smart Route Optimization**
+
+- Automatically selects fastest route (direct or via Arbitrum)
+- Gas estimation displayed before bridging
+- Support for multiple tokens (USDC, USDT, ETH)
+
+## Key Files Demonstrating deBridge Integration
+
+### Widget Implementation
+
+- [`/components/BridgePanel.tsx`](./components/BridgePanel.tsx) - Main bridge
+  component with deBridge widget
+- [`/lib/debridge/config.ts`](./lib/debridge/config.ts) - Widget configuration
+  and theming
+- [`/app/layout.tsx`](./app/layout.tsx) - deBridge script loading
+
+### Event Handling & Status
+
+- [`/components/BridgePanel.tsx#L104-159`](./components/BridgePanel.tsx#L104) -
+  Event listeners for bridge lifecycle
+- [`/hooks/useBridgeStatus.ts`](./hooks/useBridgeStatus.ts) - Custom hook for
+  bridge state management
+
+### UI/UX Integration
+
+- [`/app/page.tsx#L119-143`](./app/page.tsx#L119) - Bridge panel integration in
+  main UI
+- [`/app/globals.css`](./app/globals.css) - Dark theme styling matching
+  Hyperliquid
+
+## Technical Highlights
+
+### Why deBridge?
+
+- **Speed**: Sub-30 second bridging to Hyperliquid
+- **Reliability**: Battle-tested infrastructure
+- **UX**: Embedded widget provides seamless experience
+- **Flexibility**: Supports multiple chains and tokens
+
+### Innovation Points
+
+1. **One-Click DeFi**: Supply, borrow, and bridge in a streamlined flow
+2. **Risk Management**: Built-in health factor monitoring prevents liquidations
+3. **Cross-Chain Continuity**: Unified experience across Ethereum and
+   Hyperliquid
+
+## Running the Project
+
+### Quick Start
+
 ```bash
+# Clone repository
+git clone https://github.com/your-repo/tetrics-hackathon
+cd tetrics-hackathon/web3-app
+
+# Install dependencies
 pnpm install
-# or
-npm install
-```
 
-3. Set up environment variables:
-```bash
+# Configure environment
 cp .env.example .env.local
-```
+# Add your Privy App ID and RPC endpoints
 
-4. Configure `.env.local`:
-```env
-# Privy Configuration (required)
-NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
-NEXT_PUBLIC_PRIVY_SECRET_KEY=your_privy_secret_key
-
-# Network Configuration
-NEXT_PUBLIC_USE_TESTNET=false
-
-# RPC Endpoint (required)
-NEXT_PUBLIC_ETHEREUM_RPC=https://mainnet.infura.io/v3/your_api_key
-```
-
-5. Run the development server:
-```bash
+# Run development server
 pnpm dev
-# or
-npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000)
+### Environment Variables
 
-## Usage Guide
-
-### Supplying Collateral
-1. Connect your wallet
-2. Enter the amount of wstETH to supply
-3. Click "Supply" and approve the transaction
-4. Your collateral will be deposited into Morpho Blue
-
-### Borrowing USDC
-1. Ensure you have supplied collateral
-2. Enter the amount of USDC to borrow (up to your borrowing capacity)
-3. Click "Borrow" and approve the transaction
-4. USDC will be sent to your wallet
-
-### Managing Your Position
-- **Health Factor**: Keep above 1.0 to avoid liquidation
-- **Available to Borrow**: Maximum USDC you can borrow based on collateral
-- **Current APY**: Real-time interest rates for borrowing
-
-### Repaying Loans
-1. Enter the amount to repay
-2. Click "Repay" and approve the transaction
-3. Your borrowed balance will decrease
-
-### Withdrawing Collateral
-1. Ensure health factor remains safe after withdrawal
-2. Enter withdrawal amount
-3. Click "Withdraw" and approve the transaction
-
-## Deployment
-
-### Vercel Deployment
-
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables:
-   - `NEXT_PUBLIC_PRIVY_APP_ID`
-   - `NEXT_PUBLIC_PRIVY_SECRET_KEY`
-   - `NEXT_PUBLIC_ETHEREUM_RPC`
-   - `NEXT_PUBLIC_USE_TESTNET` (set to `false`)
-4. Deploy
-
-### Manual Deployment
-
-```bash
-# Build for production
-pnpm build
-
-# Start production server
-pnpm start
+```env
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_id
+NEXT_PUBLIC_ETHEREUM_RPC=your_eth_rpc
+NEXT_PUBLIC_USE_TESTNET=false
 ```
 
-## Market Parameters
+## Live Demo Flow
 
-The app is configured for the wstETH/USDC market on Morpho Blue:
+1. **Connect Wallet** - Use any Ethereum wallet
+2. **Supply wstETH** - Enter amount to use as collateral
+3. **Auto-Calculate Borrow** - System calculates safe USDC borrow amount
+4. **Execute Bundle** - Single transaction for supply + borrow
+5. **Bridge to Hyperliquid** - Use embedded deBridge widget
+6. **Track Status** - Real-time updates on bridge progress
 
-- **Collateral**: wstETH (Wrapped Staked ETH)
-- **Loan Asset**: USDC
-- **Max LTV**: 86%
-- **Liquidation LTV**: 91.5%
-- **Interest Model**: Adaptive Curve IRM
-- **Oracle**: Chainlink ETH/USD
+## Architecture Decisions
 
-## Security Considerations
+### Why Morpho Blue?
 
-- Always monitor your health factor to avoid liquidation
-- Understand the risks of leveraged positions
-- Price volatility can affect your collateral value
-- Smart contracts are immutable - interactions are final
+- Highest capital efficiency (86% LTV)
+- Battle-tested protocol with strong security
+- wstETH/USDC is a highly liquid market
 
-## Troubleshooting
+### Why Embedded Widget vs API?
 
-### Common Issues
+- Better UX - users stay in our app
+- Easier integration - no backend required
+- Real-time events - instant status updates
 
-**Wallet Connection Issues**
-- Ensure wallet is on Ethereum mainnet
-- Clear browser cache and reconnect
+### Why Hyperliquid?
 
-**Transaction Failures**
-- Check you have enough ETH for gas
-- Verify token balances and allowances
-- Ensure health factor is safe for operations
+- Growing ecosystem with high trading volume
+- Need for borrowed liquidity from Ethereum
+- Limited native lending options
 
-**RPC Errors**
-- Verify your RPC endpoint is configured correctly
-- Try alternative RPC providers if issues persist
+## Future Enhancements
 
-## Resources
+- [ ] Auto-bridge when borrow completes
+- [ ] Return path: Hyperliquid → Ethereum for repayment
+- [ ] Multiple collateral types
+- [ ] Position management dashboard
+- [ ] Mobile app with WalletConnect
 
-- [Morpho Blue Documentation](https://docs.morpho.org)
-- [Morpho Blue App](https://app.morpho.org)
-- [Chainlink Price Feeds](https://data.chain.link)
+## Team
 
-## Contributing
+Built for the Hyperliquid Hackathon by Team Tetrics
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+---
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Disclaimer
-
-This software is provided "as is", without warranty of any kind. Users interact with DeFi protocols at their own risk. Always do your own research and understand the risks before using DeFi applications.
+_This project showcases the power of deBridge in creating seamless cross-chain
+DeFi experiences. By embedding the deBridge widget directly into our application
+flow, we've eliminated the friction typically associated with bridge operations,
+making cross-chain lending and trading as simple as a few clicks._
